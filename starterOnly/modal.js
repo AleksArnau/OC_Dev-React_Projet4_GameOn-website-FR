@@ -62,10 +62,10 @@ function ControlePrenom() {
       "Veuillez entrer 2 caractères ou plus pour le champ du prénom."
     );
     formPrenom.setAttribute("data-error-visible", true);
-    return false;
+    return true;
   } else {
     formPrenom.setAttribute("data-error-visible", false);
-    return true;
+    return false;
   }
 }
 
@@ -77,43 +77,58 @@ function ControleNom() {
       "Veuillez entrer 2 caractères ou plus pour le champ du nom."
     );
     formNom.setAttribute("data-error-visible", true);
-    return false;
+    return true;
   } else {
     formNom.setAttribute("data-error-visible", false);
-    return true;
+    return false;
   }
 }
 
 //verifie que le champ mail est un email valide, sinon affiche un msg d'erreur
 function ControleEmail() {
-  if (!mail.validity.valid) {
+  var mailformat = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+  if (!mail.value.match(mailformat)) {
     formEmail.setAttribute(
       "data-error",
       "Veuillez entrer une adresse e-mail valide"
     );
     formEmail.setAttribute("data-error-visible", true);
-    return false;
+    return true;
   } else {
     formEmail.setAttribute("data-error-visible", false);
-    return true;
+    return false;
   }
 }
 
-//verifie que le champ date de naissance est une date valide, sinon affiche un msg d'erreur
+//verifie que le champ date de naissance est une date valide et que l'utilisateur a moins de 18 ans, sinon affiche un msg d'erreur
 function ControleDateNaissance() {
-  if (!dateNaissance.validity.valid) {
+  var currentDate = new Date();
+  var birthDate = new Date(dateNaissance.value);
+  var age = currentDate.getFullYear() - birthDate.getFullYear();
+  var month = currentDate.getMonth() - birthDate.getMonth();
+  if (
+    month < 0 ||
+    (month === 0 && currentDate.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  if (dateNaissance.value == "") {
     formDateNaissance.setAttribute(
       "data-error",
-      "Veuillez entrer une date valide"
+      "Veuillez entrer une date de naissance"
     );
     formDateNaissance.setAttribute("data-error-visible", true);
-    return false;
+    return true;
+  } else if (age < 18) {
+    formDateNaissance.setAttribute("data-error", "Vous devez avoir 18 ans");
+    formDateNaissance.setAttribute("data-error-visible", true);
+    return true;
   } else {
     formDateNaissance.setAttribute("data-error-visible", false);
-    return true;
+    return false;
   }
 }
-
 //verifie que le champ nombre de participation est entre 0-99, sinon affiche un msg d'erreur
 function ControleNbParticipations() {
   if (!nbParticipations.validity.valid) {
@@ -122,10 +137,10 @@ function ControleNbParticipations() {
       "Veuillez entrer une valeur entre 0 et 99"
     );
     formNbParticipations.setAttribute("data-error-visible", true);
-    return false;
+    return true;
   } else {
     formNbParticipations.setAttribute("data-error-visible", false);
-    return true;
+    return false;
   }
 }
 
@@ -139,11 +154,11 @@ function ControleLocation() {
   }
   if (j > 0) {
     formVille.setAttribute("data-error-visible", false);
-    return true;
+    return false;
   } else {
     formVille.setAttribute("data-error", "Veuillez sélectionner une ville.");
     formVille.setAttribute("data-error-visible", true);
-    return false;
+    return true;
   }
 }
 
@@ -151,14 +166,14 @@ function ControleLocation() {
 function Conditions() {
   if (CheckCondition.checked) {
     formConditions.setAttribute("data-error-visible", false);
-    return true;
+    return false;
   } else {
     formConditions.setAttribute(
       "data-error",
       "Veuillez accepter les conditions d'utilisation."
     );
     formConditions.setAttribute("data-error-visible", true);
-    return false;
+    return true;
   }
 }
 
@@ -182,15 +197,15 @@ document.addEventListener("keydown", (event) => {
 // Validation du formulaire au moment de l'envoi et affichage du message de remerciement si validé
 formulaire.addEventListener("submit", function validate(e) {
   e.preventDefault();
-  if (
-    ControlePrenom() &&
-    ControleNom() &&
-    ControleEmail() &&
-    ControleDateNaissance() &&
-    ControleNbParticipations() &&
-    ControleLocation() &&
-    Conditions()
-  ) {
+  var globalValidationError =
+    ControlePrenom() +
+    ControleNom() +
+    ControleEmail() +
+    ControleDateNaissance() +
+    ControleNbParticipations() +
+    ControleLocation() +
+    Conditions();
+  if (!globalValidationError) {
     Message();
     return true;
   } else {
