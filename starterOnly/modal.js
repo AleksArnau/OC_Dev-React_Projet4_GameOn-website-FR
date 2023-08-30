@@ -129,7 +129,6 @@ function ControleDateNaissance() {
     return false;
   }
 }
-
 //verifie que le champ nombre de participation est entre 0-99, sinon affiche un msg d'erreur
 function ControleNbParticipations() {
   if (!nbParticipations.validity.valid) {
